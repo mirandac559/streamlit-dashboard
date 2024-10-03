@@ -1,18 +1,3 @@
-st.write(filtered_data.dtypes)  # Verifique os tipos de dados das colunas
-st.write(filtered_data.head())    # Veja as primeiras linhas dos dados filtrados
-# Função para limpar e converter colunas numéricas
-def clean_numeric_column(column):
-    # Substitui valores não numéricos por NaN
-    column = column.replace({'R\$': '', ',': '', 'Incluso': '0', '-': '0'}, regex=True)
-    return pd.to_numeric(column, errors='coerce')  # Converte para numérico, substituindo erros por NaN
-
-# Aplicar a limpeza nas colunas relevantes
-filtered_data['property tax'] = clean_numeric_column(filtered_data['property tax'])
-filtered_data['fire insurance'] = clean_numeric_column(filtered_data['fire insurance'])
-filtered_data['rent amount'] = clean_numeric_column(filtered_data['rent amount'])
-filtered_data['total'] = clean_numeric_column(filtered_data['total'])
-corr_matrix = filtered_data.corr()
-
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -44,6 +29,10 @@ city = st.selectbox("Selecione uma cidade:", data['city'].unique())
 
 # Filtrar os dados pela cidade selecionada
 filtered_data = data[data['city'] == city]
+
+# Exibir os tipos de dados e as primeiras linhas dos dados filtrados
+st.write(filtered_data.dtypes)  # Verifique os tipos de dados das colunas
+st.write(filtered_data.head())    # Veja as primeiras linhas dos dados filtrados
 
 # Gráfico de Distribuição da Área
 fig_area = px.histogram(filtered_data, x='area', nbins=30, title='Distribuição da Área dos Imóveis')
