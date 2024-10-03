@@ -1,3 +1,18 @@
+st.write(filtered_data.dtypes)  # Verifique os tipos de dados das colunas
+st.write(filtered_data.head())    # Veja as primeiras linhas dos dados filtrados
+# Função para limpar e converter colunas numéricas
+def clean_numeric_column(column):
+    # Substitui valores não numéricos por NaN
+    column = column.replace({'R\$': '', ',': '', 'Incluso': '0', '-': '0'}, regex=True)
+    return pd.to_numeric(column, errors='coerce')  # Converte para numérico, substituindo erros por NaN
+
+# Aplicar a limpeza nas colunas relevantes
+filtered_data['property tax'] = clean_numeric_column(filtered_data['property tax'])
+filtered_data['fire insurance'] = clean_numeric_column(filtered_data['fire insurance'])
+filtered_data['rent amount'] = clean_numeric_column(filtered_data['rent amount'])
+filtered_data['total'] = clean_numeric_column(filtered_data['total'])
+corr_matrix = filtered_data.corr()
+
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -6,13 +21,20 @@ import plotly.express as px
 @st.cache
 def load_data():
     data = pd.read_csv('houses_to_rent.csv')
-    data['rent amount'] = data['rent amount'].replace({'R\$': '', ',': ''}, regex=True).astype(float)
-    data['property tax'] = data['property tax'].replace({'R\$': '', ',': '', 'Incluso': '0', '-': '0'}, regex=True).astype(float)
-    data['fire insurance'] = data['fire insurance'].replace({'R\$': '', ',': '', 'Incluso': '0', '-': '0'}, regex=True).astype(float)
-    data['total'] = data['total'].replace({'R\$': '', ',': '', '-': '0'}, regex=True).astype(float)
     return data
 
 data = load_data()
+
+# Função para limpar e converter colunas numéricas
+def clean_numeric_column(column):
+    column = column.replace({'R\$': '', ',': '', 'Incluso': '0', '-': '0'}, regex=True)
+    return pd.to_numeric(column, errors='coerce')
+
+# Remover prefixos 'R$' e tratar valores não numéricos
+data['property tax'] = clean_numeric_column(data['property tax'])
+data['fire insurance'] = clean_numeric_column(data['fire insurance'])
+data['rent amount'] = clean_numeric_column(data['rent amount'])
+data['total'] = clean_numeric_column(data['total'])
 
 # Título do app
 st.title("Dashboard Interativo de Imóveis para Aluguel")
@@ -28,6 +50,7 @@ fig_area = px.histogram(filtered_data, x='area', nbins=30, title='Distribuição
 st.plotly_chart(fig_area)
 
 # Gráfico de Correlação
+filtered_data['rent amount'] = clean_numeric_column(filtered_data['rent amount'])  # Garanta que esteja limpo
 fig_corr = px.scatter(filtered_data, x='rooms', y='rent amount', 
                        title='Correlação entre Quartos e Valor do Aluguel',
                        hover_data=['rent amount', 'area'])
