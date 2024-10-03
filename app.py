@@ -34,22 +34,24 @@ filtered_data = data[data['city'] == city]
 st.write(filtered_data.dtypes)  # Verifique os tipos de dados das colunas
 st.write(filtered_data.head())    # Veja as primeiras linhas dos dados filtrados
 
-# Gráfico de Distribuição da Área
-fig_area = px.histogram(filtered_data, x='area', nbins=30, title='Distribuição da Área dos Imóveis')
-st.plotly_chart(fig_area)
+# Verifique se há colunas numéricas antes de calcular a correlação
+numeric_columns = filtered_data.select_dtypes(include=['float64', 'int64']).columns
 
-# Gráfico de Correlação
-filtered_data['rent amount'] = clean_numeric_column(filtered_data['rent amount'])  # Garanta que esteja limpo
-fig_corr = px.scatter(filtered_data, x='rooms', y='rent amount', 
-                       title='Correlação entre Quartos e Valor do Aluguel',
-                       hover_data=['rent amount', 'area'])
-st.plotly_chart(fig_corr)
+if len(numeric_columns) > 0:
+    # Gráfico de Distribuição da Área
+    fig_area = px.histogram(filtered_data, x='area', nbins=30, title='Distribuição da Área dos Imóveis')
+    st.plotly_chart(fig_area)
 
-# Gráfico de Total de Imóveis por Cidade
-fig_total = px.bar(data, x='city', y='total', title='Total de Imóveis por Cidade')
-st.plotly_chart(fig_total)
+    # Gráfico de Correlação
+    if 'rooms' in numeric_columns and 'rent amount' in numeric_columns:
+        fig_corr = px.scatter(filtered_data, x='rooms', y='rent amount', 
+                               title='Correlação entre Quartos e Valor do Aluguel',
+                               hover_data=['rent amount', 'area'])
+        st.plotly_chart(fig_corr)
 
-# Matriz de Correlação
-corr_matrix = filtered_data.corr()
-fig_matrix = px.imshow(corr_matrix, text_auto=True, color_continuous_scale='Viridis', title='Matriz de Correlação')
-st.plotly_chart(fig_matrix)
+    # Matriz de Correlação
+    corr_matrix = filtered_data[numeric_columns].corr()
+    fig_matrix = px.imshow(corr_matrix, text_auto=True, color_continuous_scale='Viridis', title='Matriz de Correlação')
+    st.plotly_chart(fig_matrix)
+else:
+    st.warning("Não há colunas numéricas suficientes para calcular a correlação.")
