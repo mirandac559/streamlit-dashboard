@@ -22,7 +22,7 @@ data['rent amount'] = clean_numeric_column(data['rent amount'])
 data['total'] = clean_numeric_column(data['total'])
 
 # Título do app
-st.title("Dashboard Interativo de Imóveis para Aluguel")
+st.title("Imóveis para Aluguel")
 
 # Filtro de cidade
 city = st.selectbox("Selecione uma cidade:", data['city'].unique())
